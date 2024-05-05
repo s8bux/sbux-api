@@ -8,10 +8,10 @@ namespace Sandbox.Services;
 
 public static class Monetization
 {
-	[ConVar("sbux", Help = "Your s&bux balance.", Saved = true )]
-	private static string _balance { get; set; }
+	[ConVar( "sbux", Help = "Your s&bux balance.", Saved = true )] 
+	private static string _balance { get; set; } = "0";
 
-	private static List<string> _gamePass { get; set; }
+	private static List<string> _gamePass { get; set; } = new();
 
 	private const string URL = "https://sbux.party/";
 	
