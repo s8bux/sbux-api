@@ -28,5 +28,7 @@ public class GamePass : GameResource
 	[Category( "Display Information" )]
 	public string Icon { get; set; }
 	
+	public override string ToString() => JsonSerializer.Serialize( new { Ident, Cost, Title, Icon } );
+
 	internal string Serialize() => JsonSerializer.Serialize( new { Ident, Cost, Title, Icon } ).Base64Encode();
 }

@@ -1,0 +1,57 @@
+@using Sandbox
+@using Sandbox.Network
+@using Sandbox.UI
+@using System
+@attribute [StyleSheet]
+@inherits Panel
+
+<root>
+	<img id="icon" src="@Cloud.Asset( "sbux.logo" )"/>
+	<label id="timer">@(Timer.TotalSeconds < 1d ? $"{Math.Round(Timer.TotalMilliseconds / 10) * 10:n0}ms" : $"{Timer.TotalSeconds:n0}s")</label>
+	<div id="message">
+		<label id="title">@Title</label>
+		<label id="subtitle">@Subtitle</label>
+	</div>
+</root>
+
+@code
+{
+	public string Title;
+	public string Subtitle;
+	public TimeSpan Timer;
+	
+	public Notification( string title, string subtitle, TimeSpan timer )
+	{
+		if ( !Game.ActiveScene.Components.TryGet( out ScreenPanel panel ) )
+		{
+			panel = Game.ActiveScene.Components.Create<ScreenPanel>();
+			panel.AutoScreenScale = false;
+			panel.ZIndex = -1;
+			panel.GetPanel().ElementName = "monetization";
+		}
+
+		Parent = panel.GetPanel();
+		
+		Title = title;
+		Subtitle = subtitle;
+		Timer = timer;
+		
+		Delete();
+	}
+
+	public override void Tick()
+	{
+		Style.BorderColor = new Color32( 64, 112, 231 ).ToColor().Lighten( MathF.Sin( RealTime.Now * 20.0f ) * 0.2f );
+	}
+
+	public override async void Delete( bool immediate = false )
+	{
+		await Task.DelaySeconds( 2 );
+		base.Delete( immediate );
+	}
+
+	/// <summary>
+	/// the hash determines if the system should be rebuilt. If it changes, it will be rebuilt
+	/// </summary>
+	//protected override int BuildHash() => System.HashCode.Combine(  );
+}

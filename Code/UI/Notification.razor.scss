@@ -1,0 +1,78 @@
+$primary: #4070E7;
+$windowBackground: rgba( #1c1d20, 0.9625 );
+
+Notification
+{
+	position: absolute;
+	left: 17px;
+	bottom: 17px;
+
+	background-color: $windowBackground;
+	
+	min-height: 71px;
+	min-width: 295px;
+
+	border-color: $primary;
+	border-width: 2px;
+	border-radius: 5px;
+
+	box-shadow: 4px 4px rgba( black, 0.2 );
+
+	transition: all 0.3s ease-out;
+	
+	&:intro {
+		sound-in: "ui.popup.message.close.sound";
+		bottom: 0px;
+	}
+	
+	&:outro {
+		left: -500px;
+	}
+}
+
+#icon
+{
+	width: 32px;
+	height: 32px;
+	margin: 12.5px;
+}
+
+#timer
+{
+	position: absolute;
+
+	background-color: $primary;
+	border-radius: 5px;
+
+	top: 5px;
+	right: 5px;
+
+
+	font-family: Poppins;
+	font-size: 11px;
+	font-weight: 450;
+
+	padding: 0px 3px 2px 4px;
+}
+
+#message
+{
+	top: 14px;
+	flex-direction: column;
+	gap: 4px;
+	
+	#title 
+	{
+		color: rgba( white, 0.8 );
+
+		font-family: Poppins;
+		font-size: 12px;
+		font-weight: 450;
+	}
+
+	#subtitle
+	{
+		color: rgba( white, 0.6 );
+		font-size: 11px;
+	}
+}

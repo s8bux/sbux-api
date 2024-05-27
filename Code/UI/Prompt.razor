@@ -5,7 +5,7 @@
 @inherits WebPanel
 
 <style>
-	/* .scss files don't work in libraries. https://github.com/Facepunch/sbox-issues/issues/4813 */
+	/* .scss files don't work in libraries. https://github.com/Facepunch/sbox-issues/issues/5522 */
 	prompt {
 		width: 100%;
 		pointer-events: all;
@@ -61,6 +61,6 @@
 				break;
 		}
 	}
-	
+
 	protected override int BuildHash() => HashCode.Combine( Surface.PageTitle );
 }
