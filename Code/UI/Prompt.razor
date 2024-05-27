@@ -24,7 +24,7 @@
 		{
 			panel = Game.ActiveScene.Components.Create<ScreenPanel>();
 			panel.GetPanel().ElementName = "monetization";
-			panel.ZIndex = -1;
+			panel.ZIndex = int.MaxValue;
 		}
 
 		Parent = panel.GetPanel();
