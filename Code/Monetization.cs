@@ -10,9 +10,9 @@ namespace Sandbox.Services;
 public static class Monetization
 {
 	[ConVar( "sbux", Help = "Your s&bux balance.", Saved = true )]
-	private static string _balance { get; set; } = "0";
+	private static string _balance { get; set; }
 
-	private static List<string> _gamePass { get; set; } = new();
+	private static List<string> _gamePass { get; set; }
 
 	private const string URL = "https://sbux.party/";
 
@@ -30,8 +30,8 @@ public static class Monetization
 			{
 				var result = JsonNode.Parse( await response.Content.ReadAsStringAsync() );
 
-				_balance = result?["balance"]?.Deserialize<string>();
-				_gamePass = result?["gamepass"]?.Deserialize<List<string>>();
+				_balance = result?["balance"].Deserialize<string>() ?? "0";
+				_gamePass = result?["gamepass"].Deserialize<List<string>>() ?? new List<string>();
 			}
 		}
 		catch ( Exception e )
