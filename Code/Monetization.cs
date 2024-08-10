@@ -1,5 +1,6 @@
 using Sandbox.Diagnostics;
 using Sandbox.UI;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -8,27 +9,46 @@ namespace Sandbox.Services;
 
 public static class Monetization
 {
-	[ConVar( "sbux", Help = "Your s&bux balance.", Saved = true )] 
+	[ConVar( "sbux", Help = "Your s&bux balance.", Saved = true )]
 	private static string _balance { get; set; } = "0";
 
 	private static List<string> _gamePass { get; set; } = new();
 
 	private const string URL = "https://sbux.party/";
-	
+
 	private static async Task<string> Identification() => $"?steamid={Game.SteamId}&token={await Auth.GetToken( "sbux" )}&ident={Game.Ident}&balance={_balance}";
+
+	private static readonly Task Loading;
 
 	private static async Task Refresh()
 	{
-		var response = await Http.RequestJsonAsync<JsonNode>( URL + await Identification() );
+		try
+		{
+			var response = await Http.RequestAsync( URL + await Identification() );
 
-		_balance = response["balance"].Deserialize<string>();
-		_gamePass = response["gamepass"].Deserialize<List<string>>();
+			if ( response.IsSuccessStatusCode )
+			{
+				var result = JsonNode.Parse( await response.Content.ReadAsStringAsync() );
+
+				_balance = result?["balance"]?.Deserialize<string>();
+				_gamePass = result?["gamepass"]?.Deserialize<List<string>>();
+			}
+		}
+		catch ( Exception e )
+		{
+			Log.Warning( $"Something went wrong when trying to update monetization values. {e}" );
+		}
 	}
-	
+
 	static Monetization()
 	{
-		_ = Refresh();
+		Loading = Refresh();
 	}
+
+	/// <summary>
+	/// It may take a second to get a response from the backend. Use this to ensure everything is loaded.
+	/// </summary>
+	public static Task WaitForLoad() => Loading;
 
 	/// <summary>
 	/// If the player owns the game pass.
@@ -36,7 +56,7 @@ public static class Monetization
 	public static bool Has( this GamePass gamePass )
 	{
 		Assert.NotNull( gamePass );
-		
+
 		return _gamePass.Contains( gamePass.Ident );
 	}
 
@@ -45,14 +65,22 @@ public static class Monetization
 	/// <remarks>A game pass can be purchased multiple times.</remarks>
 	public static async Task<bool> Purchase( this GamePass gamePass )
 	{
-		Assert.NotNull( gamePass );
-		
-		var prompt = new Prompt( URL + gamePass.Serialize() + await Identification() );
-
-		if ( await prompt.Purchased.Task )
+		try
 		{
-			await Refresh();
-			return true;
+			Assert.NotNull( gamePass );
+
+			var prompt = new Prompt( URL + gamePass.Serialize() + await Identification() );
+
+			if ( await prompt.Purchased.Task )
+			{
+				await Refresh();
+
+				return true;
+			}
+		}
+		catch ( Exception e )
+		{
+			Log.Info( e );
 		}
 
 		return false;
