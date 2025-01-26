@@ -1,96 +1,25 @@
-using Sandbox.Diagnostics;
-using Sandbox.UI;
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+
 namespace Sandbox.Services;
 
-public static class Monetization
+internal sealed class Monetization( Scene scene ) : GameObjectSystem( scene ), ISceneLoadingEvents
 {
-	[ConVar( "sbux", Help = "Your s&bux balance.", Saved = true )]
-	private static string _balance { get; set; }
-
-	private static List<string> _gamePass { get; set; }
-
-	private const string URL = "https://sbux.party/";
-
-	private static async Task<string> Identification() => $"?steamid={Game.SteamId}&token={await Auth.GetToken( "sbux" )}&ident={Game.Ident}&balance={_balance}";
-
-	private static readonly Task Loading;
-
-	private static async Task Refresh()
-	{
-		try
-		{
-			var response = await Http.RequestAsync( URL + await Identification() );
-
-			if ( response.IsSuccessStatusCode )
-			{
-				var result = JsonNode.Parse( await response.Content.ReadAsStringAsync() );
-
-				_balance = result?["balance"].Deserialize<string>() ?? "0";
-				_gamePass = result?["gamepass"].Deserialize<List<string>>() ?? new List<string>();
-			}
-		}
-		catch ( Exception e )
-		{
-			Log.Warning( $"Something went wrong when trying to update monetization values. {e}" );
-		}
-	}
-
-	static Monetization()
-	{
-		Loading = Refresh();
-	}
-
 	/// <summary>
-	/// It may take a second to get a response from the backend. Use this to ensure everything is loaded.
+	/// Balance of the local player.
 	/// </summary>
-	public static Task WaitForLoad() => Loading;
-
+	[ConVar( "sbux", ConVarFlags.UserInfo | ConVarFlags.Saved | ConVarFlags.Protected )]
+	public static int Balance { get; set; } = 0;
+	
 	/// <summary>
-	/// If the player owns the game pass.
+	/// Ensure all values are up-to-date.
 	/// </summary>
-	public static bool Has( this GamePass gamePass )
+	public async Task OnLoad( Scene scene, SceneLoadOptions options )
 	{
-		Assert.NotNull( gamePass );
-
-		return _gamePass.Contains( gamePass.Ident );
+		var data = await Http.RequestJsonAsync<JsonObject>( "https://sbux.party/" );
+		
+		Balance = data.GetPropertyValue( nameof(Balance), 0 );
 	}
 
-	/// <summary>Prompts the player to purchase the game pass.</summary>
-	/// <returns>True if the game pass was bought.</returns>
-	/// <remarks>A game pass can be purchased multiple times.</remarks>
-	public static async Task<bool> Purchase( this GamePass gamePass )
-	{
-		try
-		{
-			Assert.NotNull( gamePass );
-
-			var prompt = new Prompt( URL + gamePass.Serialize() + await Identification() );
-
-			if ( await prompt.Purchased.Task )
-			{
-				await Refresh();
-
-				return true;
-			}
-		}
-		catch ( Exception e )
-		{
-			Log.Info( e );
-		}
-
-		return false;
-	}
-
-	/// <summary>
-	/// If the player owns the game pass, if not - prompt a purchase.
-	/// </summary>
-	public static async Task<bool> HasOrPurchase( this GamePass gamePass )
-	{
-		return gamePass.Has() || await gamePass.Purchase();
-	}
+	public void AfterLoad( Scene scene ) { /* Garry forgot to add a body */ }
 }
