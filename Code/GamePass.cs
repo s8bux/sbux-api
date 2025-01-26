@@ -1,32 +1,32 @@
-using System.Text.Json;
 namespace Sandbox.Services;
 
-[GameResource( "Game Pass", "gamepass", "A game pass", Icon = "sbux" )]
-public class GamePass : GameResource
+/// <summary>
+/// A game pass is used to provide perks to players in exchange for s&amp;bux.
+/// </summary>
+public sealed class GamePass
 {
 	/// <summary>
-	/// The ident of this game pass. A short name with no special characters.
+	/// The programmatic name you're going to refer to this game pass as.
 	/// </summary>
-	[Category("Game Pass Setup")]
-	public string Ident { get; set; }
-	
+	public string Name { get; set; }
+
 	/// <summary>
-	/// The amount of s&amp;bux this game pass costs.
+	/// A nice name to use when displaying to users.
 	/// </summary>
-	[Category("Game Pass Setup")]
-	public int Cost { get; set; }
-	
-	/// <summary>
-	/// Name of the game pass to show in UI.
-	/// </summary>
-	[Category("Display Information")]
 	public string Title { get; set; }
 
 	/// <summary>
-	/// Icon for this game pass. Only works with urls (for now).
+	/// Describe this game pass.
 	/// </summary>
-	[Category( "Display Information" )]
+	public string Description { get; set; }
+
+	/// <summary>
+	/// A square icon, ideally 128x128 pixels, to show with this game pass.
+	/// </summary>
 	public string Icon { get; set; }
-	
-	internal string Serialize() => JsonSerializer.Serialize( new { Ident, Cost, Title, Icon } ).Base64Encode();
+
+	/// <summary>
+	/// The amount of s&amp;bux this game pass costs to purchase.
+	/// </summary>
+	public int Cost { get; set; }
 }
