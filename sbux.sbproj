@@ -3,11 +3,12 @@
   "Type": "library",
   "Org": "sbux",
   "Ident": "api",
-  "Tags": null,
   "Schema": 1,
+  "IncludeSourceFiles": false,
   "Resources": null,
   "PackageReferences": [],
   "EditorReferences": null,
+  "IsWhitelistDisabled": false,
   "Metadata": {
     "CsProjName": "s8bux API",
     "Compiler": {
